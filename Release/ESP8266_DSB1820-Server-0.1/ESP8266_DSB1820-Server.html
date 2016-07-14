@@ -1,0 +1,191 @@
+<!-- /*------------------------------------
+Title: ESP8266_DSB1820 Server
+Author: Sreejith.S <VU3BIF> <sreejithsnew@gmail.com>
+Dsb1820 temp reading set to Http response
+
+Thanks anvar<123anvar@gmail.com > for helping to solve ajax calling stuffs
+-------------------------------------*/ -->
+
+<!DOCTYPE HTML>
+<html>
+<head>
+    <script src="src/jquery-1.7.2.js"></script>
+    <script src="src/jquery.percentageloader-0.1.js"></script>
+    <link rel="stylesheet" href="src/hover.css">
+	<link rel="stylesheet" href="src/screen.css">
+
+    <style>
+         body {
+          background: #f8f8f8 url(src/bg.jpg);
+        } 
+
+        #container {
+            width: auto;
+            height: auto;
+            padding: 10px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .table1 {
+            border-collapse: collapse;
+            padding: 5px;
+        }
+
+            .table1 th {
+                border-collapse: collapse;
+                padding: 5px;
+            }
+
+            .table1 td {
+                border-collapse: collapse;
+                padding: 5px;
+            }
+
+        .table2 {
+            border-collapse: collapse;
+            padding: 5px;
+        }
+
+            .table2 th {
+                border-collapse: collapse;
+                padding: 5px;
+            }
+
+            .table2 td {
+                border-collapse: collapse;
+                padding: 5px;
+            }
+    </style>
+</head>
+
+<body>
+    <div id="container" align="center">
+        <table class="table1" style="width:68%">
+            <tr align="center">
+                <th align="center"><div id="topLoader1" class="hvr-float"></div></th>
+                <th align="center"><div id="topLoader2" class="hvr-float"></div></th>
+                <th align="center"><div id="topLoader3" class="hvr-float"></div></th>
+                <th align="center"><div id="topLoader4" class="hvr-float"></div></th>
+            </tr>
+        <table class="table2" style="width:68%">
+             <tr align="center">
+				<th align="center"><div id="topLoader5" class="hvr-buzz-out"></div></th>
+				<th align="center"><div id="topLoader6" class="hvr-buzz-out"></div></th>
+				<th align="center"><div id="topLoader7" class="hvr-buzz-out"></div></th>
+             </tr>
+       </table>
+    </div>
+	
+	<input id='sensorurl' type="text" maxlength="20" placeholder="Enter IP eg:192.168.1.6 " class="hvr-glow"/>
+	<a class="a_demo_four" onclick="readip()" href="#"> Go </a>
+	<ul class="social">
+		<li><a href="http://www.facebook.com/sreejithsnew" class="icon-facebook"></a></li>
+		<p align="right" font size="10" style="float: right;font-size: 12px" >Sreejith.S (VU3IBF)</p>
+	</ul>
+    
+	<script>
+		$("#sensorurl").keyup(function(event){		//Checking 'Enter' key from input field
+			if(event.keyCode == 13){
+				$("#sensorurl").click();
+				readip();
+				}
+			});
+	
+		function readip(){
+			var ip = document.getElementById("sensorurl").value;
+					//alert(ip.length);
+				if(ip.length==0){			//If user doont type anything
+					alert("Enter the IP");
+					}
+				else if(ip.length<11){		//If the ip is not correct
+					alert("IP is wrong !");
+					$('#sensorurl').val('');
+					}
+				else{						//Seems to be correct (192.168.1.1 ->length is 11)
+					//alert("IP is correct");
+					ajaxGet('http://'+ip);
+					}
+		}
+	</script>
+	<script>
+        function ajaxGet(urlin) {
+			//alert(urlin);
+            $.ajax({
+                url: urlin,
+				complete: function() {setTimeout(function(){ ajaxGet(urlin);}, 5000);},
+                success: function (result) {
+                    //$("#div1").html(result);
+                    //alert(result);
+                    stringhand(result);
+                },
+                error: function () {					// will fire when timeout is reached
+                    alert("Error !");
+                },
+                timeout: 3000   // in mill seconds
+            });
+			
+        };
+    </script>
+
+    <script>
+        function stringhand(datain) {
+            //var payload = "$123.23,12.123,12.12,12.123,45.897,798.76,45.44$";
+			//console.log(datain);
+            var payload = datain;
+
+            var firststindex = payload.indexOf(",");
+            var sensor1 = payload.substring(1, firststindex);
+
+            var secoundindex = payload.indexOf(",", firststindex + 1);
+            var sensor2 = payload.substring(firststindex + 1, secoundindex);
+
+            var thirdindex = payload.indexOf(",", secoundindex + 1);
+            var sensor3 = payload.substring(secoundindex + 1, thirdindex);
+
+            var fourthindex = payload.indexOf(",", thirdindex + 1);
+            var sensor4 = payload.substring(thirdindex + 1, fourthindex);
+
+            var fifthindex = payload.indexOf(",", fourthindex + 1);
+            var sensor5 = payload.substring(fourthindex + 1, fifthindex);
+
+            var sixthindex = payload.indexOf(",", fifthindex + 1);
+            var sensor6 = payload.substring(fifthindex + 1, sixthindex);
+
+            var seventhindex = payload.indexOf(",", sixthindex + 1);
+            var sensor7 = payload.substring(sixthindex + 1, seventhindex - 1);
+
+            //alert(datain);
+
+            $topLoader1.setProgress(Number(sensor1));
+			$topLoader2.setProgress(Number(sensor2));
+			$topLoader3.setProgress(Number(sensor3));
+			$topLoader4.setProgress(Number(sensor4));
+			$topLoader5.setProgress(Number(sensor5));
+			$topLoader6.setProgress(Number(sensor6));
+			$topLoader7.setProgress(Number(sensor7));
+        }
+		
+		var $topLoader1,$topLoader2,$topLoader3,$topLoader4,$topLoader5,$topLoader6,$topLoader7;
+        $(document).ready(function () {					//Execution start from here
+																	
+            $topLoader1 = $("#topLoader1").percentageLoader({ width: 256, height: 256, sensor: "S1"});	//To initialise & hide error 
+			$topLoader1.setProgress(140.00);
+			$topLoader2 = $("#topLoader2").percentageLoader({ width: 256, height: 256, sensor: "S2"});
+			$topLoader2.setProgress(120.16);
+			$topLoader3 = $("#topLoader3").percentageLoader({ width: 256, height: 256, sensor: "S3"});
+			$topLoader3.setProgress(70.26);
+			$topLoader4 = $("#topLoader4").percentageLoader({ width: 256, height: 256, sensor: "S4"});
+			$topLoader4.setProgress(15.76);
+			$topLoader5 = $("#topLoader5").percentageLoader({ width: 256, height: 256, sensor: "S5"});
+			$topLoader5.setProgress(30.56);
+			$topLoader6 = $("#topLoader6").percentageLoader({ width: 256, height: 256, sensor: "S6"});
+			$topLoader6.setProgress(120.86);
+			$topLoader7 = $("#topLoader7").percentageLoader({ width: 256, height: 256, sensor: "S7"});
+			$topLoader7.setProgress(110.06);
+
+            //ajaxGet('http://192.168.1.5/');  
+        });
+    </script>
+</body>
+</html>
